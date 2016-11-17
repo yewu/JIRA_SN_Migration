@@ -1,0 +1,8 @@
+  var gr_request = new GlideRecord('sc_req_item');
+  gr_request.addQuery('cat_item','87b99eff6fb99200250e6bbeae3ee4bc');
+  gr_request.query();
+  while (gr_request.next()) {
+   var gr_req = new GlideRecord('sc_request');
+    gr_req.get(gr_request.request.sys_id);
+    gr_req.deleteRecord()
+  }

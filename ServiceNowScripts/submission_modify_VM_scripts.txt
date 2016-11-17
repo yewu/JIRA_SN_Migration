@@ -1,0 +1,142 @@
+  var dhuserid = '';
+  var user = new GlideRecord('sys_user');
+  user.addQuery('user_name','hosierd@nih.gov');
+  user.query();
+  user.next();
+  dhuserid = user.sys_id;
+
+
+  var jira_table = new GlideRecord('u_jira_mod_request_sn');
+  jira_table.query();
+ 
+  while (jira_table.next()) {
+  gs.print(jira_table.u_issue_key);
+
+  
+  var create_dt = new GlideDateTime(jira_table.u_created);
+  var gr_request = new GlideRecord('sc_request');
+  gr_request.initialize();
+  gr_request.u_cms_submitted = true;
+  
+  var userid = '';
+  var user = new GlideRecord('sys_user');
+  user.addQuery('user_name','STARTSWITH',jira_table.u_creator.toLowerCase());
+  user.query();
+  if (user.next()) {
+    userid = user.sys_id;
+  } else {
+    userid = dhuserid;
+  }  
+  
+  gr_request.requested_for = userid;
+  gr_request.opened_by = userid;
+  gr_request.sys_created_on=create_dt;
+  gr_request.opened_at=create_dt;
+  gr_request.contact_type = 'Web';
+  gr_request.special_instructions = "JIRA_KEY:" + jira_table.u_issue_key + "\n" + "Assigned To:" + jira_table.u_assignee + "\n" + jira_table.u_comment;
+  var request_id = gr_request.insert();
+
+
+
+  var gr_requested_item = new GlideRecord('sc_req_item');
+  gr_requested_item.initialize();
+  gr_requested_item.u_cms_submitted = true;
+  gr_requested_item.opened_by = userid;
+  gr_requested_item.cat_item = 'd7b0aef76fdd6600e04fd15eae3ee418';
+  gr_requested_item.description = jira_table.u_summary;
+  gr_requested_item.short_description = jira_table.u_issue_key + ":" + jira_table.u_custom_field_server_name;
+  gr_requested_item.request = request_id;
+  gr_requested_item.sys_created_on=create_dt;
+  gr_requested_item.opened_at=create_dt;
+  gr_requested_item.sys_created_by=userid;
+  gr_requested_item.sys_updated_by=userid;
+  gr_requested_item.contact_type = 'Web';
+  gr_requested_item.u_director = jira_table.u_custom_field_system_owner;
+  gr_requested_item.comments = jira_table.u_comment;
+  gr_requested_item.work_notes = jira_table.u_comment;
+  var submitted_id = gr_requested_item.insert();
+
+   var currentdt = new GlideDateTime(jira_table.u_custom_field_ification_date);
+ 
+  var variableNames = [];
+  var variableValues = [];
+
+
+  variableNames.push("e8272ebb6fdd6600e04fd15eae3ee441");
+  variableValues.push(jira_table.u_custom_field_server_name);
+  
+  variableNames.push("3682f2ff6fdd6600e04fd15eae3ee4c5");
+  variableValues.push("Normal");
+
+  variableNames.push("668cae3f6fdd6600e04fd15eae3ee4e5");
+  variableValues.push(currentdt);
+    
+  
+  variableNames.push("6529ba146f792e00e04fd15eae3ee49b");
+  variableValues.push("true");
+
+  if ("541306d86ff52e00e04fd15eae3ee460" != jira_table.u_type) {
+    variableNames.push("541306d86ff52e00e04fd15eae3ee460");
+    variableValues.push("false");
+  }
+
+  if ("fcb18e1c6ff52e00e04fd15eae3ee4a2" != jira_table.u_type) {
+    variableNames.push("fcb18e1c6ff52e00e04fd15eae3ee4a2");
+    variableValues.push("false");
+  }
+
+  if ("889a48906f29a600e04fd15eae3ee4eb" != jira_table.u_type) {
+    variableNames.push("889a48906f29a600e04fd15eae3ee4eb");
+    variableValues.push("false");
+  }
+
+  if ("62d2c6186ff52e00e04fd15eae3ee4c9" != jira_table.u_type) {
+    variableNames.push("62d2c6186ff52e00e04fd15eae3ee4c9");
+    variableValues.push("false");
+  }
+
+  if ("57d342dc6ff52e00e04fd15eae3ee444" != jira_table.u_type) {
+    variableNames.push("57d342dc6ff52e00e04fd15eae3ee444");
+    variableValues.push("false");
+  }
+
+  variableNames.push(jira_table.u_type);
+  variableValues.push("true");
+
+  variableNames.push("9ee93a9e6ff3b900250e6bbeae3ee4ba");
+  variableValues.push(jira_table.u_summary + "\n" + jira_table.u_custom_field_f_modification);
+  
+  variableNames.push("460af69e6ff3b900250e6bbeae3ee450");
+  variableValues.push(jira_table.u_custom_field_sjustification);
+
+  
+  var orderNum = 0;  
+  for(var count=0;count < variableNames.length; count++){
+    var gr_answers = new GlideRecord('sc_item_option');
+    gr_answers.initialize();
+    gr_answers.item_option_new = variableNames[count];
+    gr_answers.value = variableValues[count];
+    gr_answers.order = orderNum+10;
+    var answers_sys_id = gr_answers.insert();
+
+    var gr_m2m = new GlideRecord('sc_item_option_mtom');
+    gr_m2m.initialize();
+    gr_m2m.sc_item_option = answers_sys_id;
+    gr_m2m.request_item = submitted_id;
+    gr_m2m.insert();
+ }
+	
+ 
+ 
+  var gr_requested_item2 = new GlideRecord('sc_req_item');
+  gr_requested_item2.get(submitted_id);
+  gr_requested_item2.sys_created_on=create_dt;
+  gr_requested_item2.state=3;
+  gr_requested_item2.stage="complete";
+  gr_requested_item2.sys_closed_by=userid;
+  gr_requested_item2.sys_created_by=userid;
+  gr_requested_item2.sys_updated_by=userid;
+  gr_requested_item2.due_date = currentdt;
+   gr_requested_item2.closed_by=userid;  
+ gr_requested_item2.update();
+}

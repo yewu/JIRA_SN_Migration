@@ -1,0 +1,176 @@
+  var dhuserid = '';
+  var user = new GlideRecord('sys_user');
+  user.addQuery('user_name','hosierd@nih.gov');
+  user.query();
+  user.next();
+  dhuserid = user.sys_id;
+
+
+  var jira_table = new GlideRecord('u_jira_new_vm_sn');
+  jira_table.query();
+ 
+  while (jira_table.next()) {
+  gs.print(jira_table.u_issue_key);
+
+  
+  var create_dt = new GlideDateTime(jira_table.u_created);
+  var gr_request = new GlideRecord('sc_request');
+  gr_request.initialize();
+  gr_request.u_cms_submitted = true;
+  
+  var userid = '';
+  var user = new GlideRecord('sys_user');
+  user.addQuery('user_name','STARTSWITH',jira_table.u_creator.toLowerCase());
+  user.query();
+  if (user.next()) {
+    userid = user.sys_id;
+  } else {
+    userid = dhuserid;
+  }  
+  
+
+  var leaduserid = '';
+  var userLeadSearch = new GlideRecord('sys_user');
+  userLeadSearch.addQuery('user_name','STARTSWITH',jira_table.u_custom_field_lead_engineer.toLowerCase());
+  userLeadSearch.query();
+  if (userLeadSearch.next()) {
+    leaduserid = userLeadSearch.sys_id;
+  } else {
+    leaduserid = '';
+  }  
+
+
+  gr_request.requested_for = userid;
+  gr_request.opened_by = userid;
+  gr_request.sys_created_on=create_dt;
+  gr_request.opened_at=create_dt;
+  gr_request.contact_type = 'Web';
+  gr_request.special_instructions = "JIRA_KEY:" + jira_table.u_issue_key + "\n" + "Assigned To:" + jira_table.u_assignee + "\n" + jira_table.u_comment;
+  var request_id = gr_request.insert();
+
+  var currentdt = new GlideDateTime(jira_table.u_custom_field_uest_is_needed);
+
+
+  var gr_requested_item = new GlideRecord('sc_req_item');
+  gr_requested_item.initialize();
+  gr_requested_item.u_cms_submitted = true;
+  gr_requested_item.opened_by = userid;
+  gr_requested_item.cat_item = '87b99eff6fb99200250e6bbeae3ee4bc';
+  gr_requested_item.description = jira_table.u_short_description;
+  gr_requested_item.short_description = jira_table.u_issue_key;
+  gr_requested_item.request = request_id;
+  gr_requested_item.sys_created_on=create_dt;
+  gr_requested_item.opened_at=create_dt;
+  gr_requested_item.sys_created_by=userid;
+  gr_requested_item.closed_by=leaduserid;  
+  gr_requested_item.sys_updated_by=userid;
+  gr_requested_item.contact_type = 'Web';
+  gr_requested_item.due_date = currentdt;
+  gr_requested_item.u_project_name=	jira_table.u_custom_field_i_project_name;
+  gr_requested_item.u_director=jira_table.u_bus_sys_name;
+  gr_requested_item.comments = jira_table.u_comment;
+  gr_requested_item.work_notes = jira_table.u_comment;
+  var submitted_id = gr_requested_item.insert();
+
+ 
+  var variableNames = [];
+  var variableValues = [];
+  variableNames.push("7b90a3846f02d200e04fd15eae3ee445");
+  variableValues.push(dhuserid);
+  variableNames.push("7790a3846f02d200e04fd15eae3ee443");
+  variableValues.push(userid);
+  variableNames.push("f790a3846f02d200e04fd15eae3ee444");
+  variableValues.push(currentdt);
+  variableNames.push("3ca0a3846f02d200e04fd15eae3ee451");
+  variableValues.push(jira_table.u_short_description);
+  variableNames.push("7ca0a3846f02d200e04fd15eae3ee44f");
+  variableValues.push(jira_table.u_serveruserbase);
+  variableNames.push("bca0a3846f02d200e04fd15eae3ee452");
+  variableValues.push(jira_table.u_production);
+  variableNames.push("5ca0a3846f02d200e04fd15eae3ee44b");
+  variableValues.push(jira_table.u_function);
+  variableNames.push("14a0a3846f02d200e04fd15eae3ee44b");
+  variableValues.push(jira_table.u_otherfunction);
+  variableNames.push("6b90a3846f02d200e04fd15eae3ee43e");
+  variableValues.push(jira_table.u_bus_sys_name);
+  variableNames.push("df9063846f02d200e04fd15eae3ee4e6");
+  variableValues.push(jira_table.u_requestmonitoring);
+  variableNames.push("a790a3846f02d200e04fd15eae3ee441");
+  variableValues.push(jira_table.u_enviroment);
+  variableNames.push("c5a0a3846f02d200e04fd15eae3ee453");
+  variableValues.push(jira_table.u_f5);
+  variableNames.push("4590af446f02d200e04fd15eae3ee4d5");
+  variableValues.push(jira_table.u_servertypesize);
+  variableNames.push("1990a3846f02d200e04fd15eae3ee41a");
+  variableValues.push(jira_table.u_nbrprocessors);
+  variableNames.push("6d90a3846f02d200e04fd15eae3ee41d");
+  variableValues.push(jira_table.u_srvrmemory);
+  variableNames.push("4290a3846f02d200e04fd15eae3ee424");
+  variableValues.push(jira_table.u_cust_specs);
+  variableNames.push("ce90a3846f02d200e04fd15eae3ee422");
+  variableValues.push(jira_table.u_requestbackup);
+  variableNames.push("0a90a3846f02d200e04fd15eae3ee423");
+  variableValues.push(jira_table.u_custom_c);
+  variableNames.push("1e90a3846f02d200e04fd15eae3ee425");
+  variableValues.push(jira_table.u_cust_partition);
+  variableNames.push("d290a3846f02d200e04fd15eae3ee425");
+  variableValues.push(jira_table.u_storagerequirements);
+  variableNames.push("dd90a3846f02d200e04fd15eae3ee419");
+  variableValues.push(jira_table.u_storreqmt);
+  variableNames.push("5690a3846f02d200e04fd15eae3ee426");
+  variableValues.push(jira_table.u_adddetail);
+  variableNames.push("04a0a3846f02d200e04fd15eae3ee447");
+  variableValues.push(jira_table.u_operatingsystem);
+  variableNames.push("bf90a3846f02d200e04fd15eae3ee443");
+  variableValues.push(jira_table.u_othersystem);
+  variableNames.push("a390a3846f02d200e04fd15eae3ee43f");
+  variableValues.push(jira_table.u_work_notes);
+  variableNames.push("3b80af446f02d200e04fd15eae3ee466");
+  variableValues.push(jira_table.u_reqcname);
+  variableNames.push("4b80af446f02d200e04fd15eae3ee45e");
+  variableValues.push(jira_table.u_cnamealias);
+  variableNames.push("0380af446f02d200e04fd15eae3ee45e");
+  variableValues.push(jira_table.u_publicfacing);
+  variableNames.push("7380af446f02d200e04fd15eae3ee467");
+  variableValues.push(jira_table.u_othernetwrk);
+  variableNames.push("fea0e2ea6f1e9200e04fd15eae3ee408");
+  variableValues.push(jira_table.u_ipaddress);
+  variableNames.push("5ad02eaa6f1e9200e04fd15eae3ee4fe");
+  variableValues.push(jira_table.u_hostname);
+  variableNames.push("55e062ea6f1e9200e04fd15eae3ee4a8");
+  variableValues.push(jira_table.u_vicluster);
+  variableNames.push("50f026ea6f1e9200e04fd15eae3ee48e");
+  variableValues.push(jira_table.u_vidatastore);
+  
+  
+  var orderNum = 0;  
+  for(var count=0;count < variableNames.length; count++){
+    var gr_answers = new GlideRecord('sc_item_option');
+    gr_answers.initialize();
+    gr_answers.item_option_new = variableNames[count];
+    gr_answers.value = variableValues[count];
+    gr_answers.order = orderNum+10;
+    var answers_sys_id = gr_answers.insert();
+
+    var gr_m2m = new GlideRecord('sc_item_option_mtom');
+    gr_m2m.initialize();
+    gr_m2m.sc_item_option = answers_sys_id;
+    gr_m2m.request_item = submitted_id;
+    gr_m2m.insert();
+ }
+	
+ 
+ 
+  var gr_requested_item2 = new GlideRecord('sc_req_item');
+  gr_requested_item2.get(submitted_id);
+  var gdt = new GlideDateTime();
+  gr_requested_item2.sys_created_on=create_dt;
+  gr_requested_item2.state=3;
+  gr_requested_item2.stage="complete";
+  gr_requested_item2.sys_closed_by=userid;
+  gr_requested_item2.sys_created_by=userid;
+  gr_requested_item2.sys_updated_by=userid;
+  gr_requested_item2.closed_by=leaduserid;  
+  gr_requested_item2.update();
+}
+
