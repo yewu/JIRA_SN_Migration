@@ -18,6 +18,16 @@
   gr_request.initialize();
   gr_request.u_cms_submitted = true;
   
+  var fedpocuserid = '';
+  var feduser = new GlideRecord('sys_user');
+  feduser.addQuery('user_name','STARTSWITH',jira_table.u_custom_field_int_of_contact.toLowerCase());
+  feduser.query();
+  if (feduser.next()) {
+    fedpocuserid = feduser.sys_id;
+  } else {
+    fedpocuserid = dhuserid;
+  }  
+  
   var userid = '';
   var user = new GlideRecord('sys_user');
   user.addQuery('user_name','STARTSWITH',jira_table.u_creator.toLowerCase());
@@ -27,20 +37,19 @@
   } else {
     userid = dhuserid;
   }  
-  
 
   var leaduserid = '';
   var userLeadSearch = new GlideRecord('sys_user');
-  userLeadSearch.addQuery('user_name','STARTSWITH',jira_table.u_project_lead.toLowerCase());
+  userLeadSearch.addQuery('user_name','STARTSWITH',jira_table.u_custom_field__assigned_user.toLowerCase());
   userLeadSearch.query();
   if (userLeadSearch.next()) {
     leaduserid = userLeadSearch.sys_id;
   } else {
-    leaduserid = '';
+    leaduserid = userid;
   }  
 
 
-  gr_request.requested_for = userid;
+  gr_request.requested_for = leaduserid;
   gr_request.opened_by = userid;
   gr_request.sys_created_on=create_dt;
   gr_request.opened_at=create_dt;
@@ -75,9 +84,9 @@
   var variableNames = [];
   var variableValues = [];
   variableNames.push("ab991da6dbc322004c89ff621f9619a9");
-  variableValues.push(dhuserid);
+  variableValues.push(fedpocuserid);
   variableNames.push("cc0a55e6dbc322004c89ff621f9619d1");
-  variableValues.push(userid);
+  variableValues.push(leaduserid);
   variableNames.push("54a4e16adbc322004c89ff621f961911");
   variableValues.push(currentdt);
   variableNames.push("cb6465aadbc322004c89ff621f96197c");
@@ -95,17 +104,21 @@
   variableNames.push("1f4ab9eedbc322004c89ff621f961959");
   variableValues.push(jira_table.u_othermemory);
   
+  variableNames.push("1e4dd7f2db8b22004c89ff621f961943");
+  variableValues.push("Other");
+  variableNames.push("a79d17f2db8b22004c89ff621f9619c6");
+  variableValues.push(" ");
+
+
   variableNames.push("b68929eadbc322004c89ff621f961923");
   variableValues.push(jira_table.u_harddisk);
   variableNames.push("e96a652edbc322004c89ff621f9619dc");
   variableValues.push(jira_table.u_otherharddisk);
   
-  variableNames.push("640a252edbc322004c89ff621f96194e");
-  variableValues.push(jira_table.u_partition);
   variableNames.push("4caae12edbc322004c89ff621f961998");
-  variableValues.push(jira_table.u_otherpartition);
+  variableValues.push(jira_table.u_partition + ":" + jira_table.u_otherpartition);
   
-  variableNames.push("c43715a6dbc322004c89ff621f961910");
+  variableNames.push("9ee93a9e6ff3b900250e6bbeae3ee4ba");
   variableValues.push(jira_table.u_adddetail);
   
   
@@ -133,7 +146,7 @@
   gr_requested_item2.sys_created_on=create_dt;
   gr_requested_item2.state=3;
   gr_requested_item2.stage="complete";
-  gr_requested_item2.sys_closed_by=userid;
+  gr_requested_item2.sys_closed_by=leaduserid;
   gr_requested_item2.sys_created_by=userid;
   gr_requested_item2.sys_updated_by=userid;
   gr_requested_item2.closed_by=leaduserid;  
