@@ -76,6 +76,7 @@
   gr_requested_item.contact_type = 'Web';
   gr_requested_item.due_date = currentdt;
   gr_requested_item.u_director=jira_table.u_bus_sys_name;
+  gr_requested_item.u_project_name=	jira_table.u_hostname;
   gr_requested_item.comments = jira_table.u_comment;
   gr_requested_item.work_notes = jira_table.u_comment;
   var submitted_id = gr_requested_item.insert();
